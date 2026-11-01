@@ -113,6 +113,42 @@
      полей файла. */
   var OWN = ["Ответ", "Пара"];
 
+  /* Решение — последнее поле записи: первая строка — откуда оно, дальше
+     текст. Свёрнуто: решение длинное и читается не всегда, а раскрытое
+     сразу закрыло бы условия соседних задач. Текст рисуется при первом
+     раскрытии. Нет текста — «официального решения нет» — строкой. */
+  function solution(v) {
+    var cut = v.search(/\n\s*\n/);
+    var otkuda = cut >= 0 ? v.slice(0, cut) : v;
+    var text = cut >= 0 ? v.slice(cut).trim() : "";
+    if (!text) {
+      var part = el("div", "bz-part");
+      part.appendChild(el("div", "bz-label", "Решение"));
+      var line = el("div", "bz-sol-src");
+      mdLine(otkuda, line);
+      part.appendChild(line);
+      return part;
+    }
+    var box = el("details", "bz-part bz-sol");
+    var head = el("summary", "bz-sol-head");
+    var name = el("span", "bz-sol-name");
+    name.appendChild(el("span", "bz-label", "Решение"));
+    var src = el("span", "bz-sol-src");
+    mdLine(otkuda, src);
+    name.appendChild(src);
+    head.appendChild(name);
+    head.appendChild(el("span", "chev"));
+    box.appendChild(head);
+    var body = null;
+    box.addEventListener("toggle", function () {
+      if (box.open && !body) {
+        body = md(text, "md bz-text");
+        box.appendChild(body);
+      }
+    });
+    return box;
+  }
+
   function card(s, e) {
     var box = el("article", "bz");
     box.id = e.code;
@@ -130,6 +166,7 @@
       part.appendChild(md(pole[k], "md bz-text"));
       box.appendChild(part);
     });
+    if (pole["Решение"]) box.appendChild(solution(pole["Решение"]));
     var info = el("dl", "bz-meta");
     function line(k, fill) {
       var row = el("div");
@@ -140,7 +177,7 @@
       info.appendChild(row);
     }
     e.pole.forEach(function (p) {
-      if (OWN.indexOf(p[0]) < 0) line(p[0], function (dd) { mdLine(p[1], dd); });
+      if (OWN.indexOf(p[0]) < 0 && p[0] !== "Решение") line(p[0], function (dd) { mdLine(p[1], dd); });
     });
     if (e.note) line("Примечание", function (dd) { dd.appendChild(md(e.note)); });
     box.appendChild(info);
