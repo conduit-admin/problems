@@ -878,9 +878,9 @@ a.row.tap, .set-head.tap { animation: tapRow .4s ease-out; }
    Источник — платиновая плашка раздела в чёрной обводке: край чёткий
    и на муаре (без обводки полупрозрачная подложка расплывалась на узоре).
    Под ней свёрнутый охват и карточки задач: белый лист в чёрной обводке,
-   как группа, но без шеврона — условие видно сразу. Ответ, пара и справка
-   отделены чертой в полтора пункта цвета краёв: волосяная черта
-   прозрачным серым на белом читалась размыто. */
+   в покое — одно условие, без шеврона. Раскрытая часть, ответ, пара
+   и справка отделены чертой в полтора пункта цвета краёв: волосяная
+   черта прозрачным серым на белом читалась размыто. */
 
 .bz-sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .bz-sec[hidden] { display: none; }
@@ -934,19 +934,40 @@ a.row.tap, .set-head.tap { animation: tapRow .4s ease-out; }
   font-weight: 700;
 }
 
+/* Карточка в покое — одно условие в рамке, поля тоньше прежних 14 × 18:
+   банк листают, собирая подборку, и чем плотнее условия, тем меньше
+   листать. Зазор между рамками остаётся 12 — при 8 они слипались. */
 .bz {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  padding: 14px 18px 16px;
+  padding: 11px 16px 12px;
   background: var(--surface);
   border: var(--frame);
   border-radius: var(--radius);
   scroll-margin-top: 16px;
+  transition: background-color .14s ease;
 }
 
-/* Отфильтрованная карточка: display: grid выше перебил бы hidden. */
-.bz[hidden] { display: none; }
+/* Нажатие на условие раскрывает карточку. Отклик под курсором — серой
+   подложкой, как у кнопок; только там, где курсор есть: на телефоне
+   подсветка залипла бы после касания. */
+.bz-cond { cursor: pointer; border-radius: 6px; }
+.bz-cond:focus-visible { outline: 2px solid var(--black); outline-offset: 4px; }
+@media (hover: hover) {
+  .bz:not(.open):hover { background: var(--soft); }
+}
+
+/* Раскрытая часть — под чертой: код со ссылкой и источник, ответ,
+   свёрнутые пара и решение, справка. */
+.bz-more {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1.5px solid var(--line);
+}
+.bz-more[hidden] { display: none; }
 
 .bz-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .bz-code { color: var(--black); font-size: 17.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -993,17 +1014,6 @@ a.bz-code:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; 
   font-size: 0.88em;
 }
 
-/* Метки — свёрнутый лист под пилюлями источников. Выбранная метка видна
-   и в свёрнутом — тихой подписью под заголовком; пилюли внутри —
-   под тонкой чертой, как строки в группе. */
-.set-note { color: var(--ink-muted); font-size: 15px; font-weight: 500; }
-.set-note[hidden] { display: none; }
-.tags-set > .tag-chips {
-  margin: 0 6px;
-  padding: 12px 10px 14px;
-  border-top: 1px solid var(--line);
-}
-
 /* Пилюли источников на телефоне — одной строкой с прокруткой вбок, как
    оглавление на «Лучезарности»: в четыре строки они съедали экран
    до первой задачи. Пилюля, уехавшая за край, читается как «дальше ещё». */
@@ -1020,7 +1030,7 @@ a.bz-code:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; 
 }
 
 @media (max-width: 560px) {
-  .bz { padding: 12px 14px 14px; }
+  .bz { padding: 10px 14px 11px; }
   .bz-meta > div { grid-template-columns: 1fr; gap: 0; }
 }
 
