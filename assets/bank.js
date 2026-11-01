@@ -318,6 +318,20 @@
     main.appendChild(el("div", "empty", text));
   }
 
+  /* Знак в шапке — кнопка: нажатие только запускает вспышку лучей, как
+     на других сайтах. Класс снимается и ставится заново, чтобы вспышка
+     повторялась и при нажатии подряд. */
+  document.querySelectorAll(".znak-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.classList.remove("tap");
+      void btn.offsetWidth;
+      btn.classList.add("tap");
+    });
+    btn.addEventListener("animationend", function () {
+      btn.classList.remove("tap");
+    });
+  });
+
   fetch("data/banki.json", { cache: "no-cache" })
     .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function (d) {
