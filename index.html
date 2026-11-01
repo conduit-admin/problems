@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#FFFFFF">
+<title>Банки задач</title>
+<!-- Банки задач: задачи одной темы из многих источников, банк за раз,
+     с фильтром по источнику. Что показывать, задаёт адрес: #parametr —
+     банк, #parametr/ommo — банк, только ОММО. Данные — data/banki.json,
+     его пишет скрипт выкладки из файлов банка в knowledge. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50'/%3E%3Cg stroke='%23FDD17A' stroke-width='2.6'%3E%3Cline x1='50.0' y1='57.0' x2='50.0' y2='90.0'/%3E%3Cline x1='56.1' y1='53.5' x2='84.6' y2='70.0'/%3E%3Cline x1='57.0' y1='50.0' x2='80.0' y2='50.0'/%3E%3Cline x1='56.1' y1='46.5' x2='84.6' y2='30.0'/%3E%3Cline x1='53.5' y1='43.9' x2='65.0' y2='24.0'/%3E%3Cline x1='50.0' y1='43.0' x2='50.0' y2='10.0'/%3E%3Cline x1='46.5' y1='43.9' x2='35.0' y2='24.0'/%3E%3Cline x1='43.9' y1='46.5' x2='15.4' y2='30.0'/%3E%3Cline x1='43.0' y1='50.0' x2='20.0' y2='50.0'/%3E%3Cline x1='43.9' y1='53.5' x2='15.4' y2='70.0'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Cpolygon points='50.0,50.0 61.5,76.3 73.0,89.8 67.0,73.1'/%3E%3Cpolygon points='50.0,50.0 33.0,73.1 27.0,89.8 38.5,76.3'/%3E%3Ccircle cx='50' cy='50' r='4.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/golos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<!-- KaTeX — формулы условий, та же версия, что на «Лучезарности». -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css?v=1">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <!-- Своего знака у сайта пока нет: слева название, справа знак
+         «Лучезарности», как на 11-1 и сайте курса. -->
+    <h1 class="site-title">Банки задач</h1>
+    <span class="logo znak-btn" aria-hidden="true">
+      <svg class="brand-logo znak" viewBox="0 0 100 100" focusable="false">
+        <circle cx="50" cy="50" r="50" fill="#000"/>
+        <g class="znak-rays" stroke="#FDD17A" stroke-width="2.6">
+          <line x1="50.0" y1="57.0" x2="50.0" y2="90.0"/>
+          <line x1="56.1" y1="53.5" x2="84.6" y2="70.0"/>
+          <line x1="57.0" y1="50.0" x2="80.0" y2="50.0"/>
+          <line x1="56.1" y1="46.5" x2="84.6" y2="30.0"/>
+          <line x1="53.5" y1="43.9" x2="65.0" y2="24.0"/>
+          <line x1="50.0" y1="43.0" x2="50.0" y2="10.0"/>
+          <line x1="46.5" y1="43.9" x2="35.0" y2="24.0"/>
+          <line x1="43.9" y1="46.5" x2="15.4" y2="30.0"/>
+          <line x1="43.0" y1="50.0" x2="20.0" y2="50.0"/>
+          <line x1="43.9" y1="53.5" x2="15.4" y2="70.0"/>
+        </g>
+        <polygon points="50.0,50.0 61.5,76.3 73.0,89.8 67.0,73.1" fill="#fff"/>
+        <polygon points="50.0,50.0 33.0,73.1 27.0,89.8 38.5,76.3" fill="#fff"/>
+        <circle cx="50" cy="50" r="4.5" fill="#fff"/>
+      </svg>
+    </span>
+  </header>
+
+  <main id="main">
+    <div class="skeleton" aria-hidden="true">
+      <span class="skel-head"></span>
+      <span class="skel-row"></span>
+      <span class="skel-row"></span>
+    </div>
+  </main>
+</div>
+<!-- marked разбирает markdown условий, KaTeX — формулы в них. Не загрузятся —
+     условия покажутся простым текстом с формулами в исходном виде. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="assets/bank.js?v=1"></script>
+</body>
+</html>

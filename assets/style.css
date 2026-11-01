@@ -1,0 +1,1023 @@
+/* Банки задач — оформление «Бумага», как у «Лучезарности», 11-1 и сайта
+   курса (web/styles/bumaga.md в knowledge). Основа — стили сайта курса
+   «ВсОШ по ИИ» целиком; своё — в конце файла: название в шапке, плашки
+   источников и карточки задач. Тема одна, светлая. */
+
+:root {
+  color-scheme: only light;
+
+  --plane: #FFFFFF;
+  --surface: #FFFFFF;
+  --ink: #16131C;
+  --ink-muted: #756E80;
+  --quiet: rgba(22, 19, 28, 0.055);
+  --quiet-on: rgba(22, 19, 28, 0.10);
+  --soft: #F1F0F2;
+  --line: #D6D3DA;
+  --gold-logo: #FDD17A;
+
+  /* Платина — плашки разделов и линии муара. */
+  --plat: #D5D8DE;
+  --plat-plate: #C3C8D1;
+
+  --black: #141118;
+  --frame: 2.5px solid var(--black);
+  --frame-sm: 2px solid var(--black);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --tap: 44px;
+
+  --font-ui: "Golos Text", "Segoe UI Variable Text", system-ui, -apple-system,
+             "Segoe UI", Roboto, sans-serif;
+  /* Моноширинный — только в коде, тот же набор, что на «Лучезарности». */
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+}
+
+/* Golos Text, свой файл рядом. Кириллический берётся всегда, латинский —
+   только если попадётся латиница. */
+@font-face {
+  font-family: "Golos Text";
+  src: url("fonts/golos-cyrillic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "Golos Text";
+  src: url("fonts/golos-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+:focus:not(:focus-visible) { outline: none; }
+
+html, body { margin: 0; padding: 0; }
+
+/* Фон — муар орденской ленты платиновыми линиями, плитка 480 на 360
+   из репозитория «Лучезарности» (tools/muar.py там). По середине окна,
+   чтобы поля слева и справа были одинаковыми. */
+html {
+  scrollbar-gutter: stable;
+  background-color: var(--plane);
+  background-image: url("muar.svg");
+  background-size: 480px 360px;
+  background-position: 50% 0;
+}
+
+body {
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+/* ── шапка ─────────────────────────────────────────────── */
+
+/* Шапка как у 11-1: два знака и ни слова рядом — слева логотип
+   «Вензель», справа знак «Лучезарности». */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 2.5px 22px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Логотипы — кнопки без собственного вида: нажатие ничего не открывает
+   и не перезагружает, только запускает анимацию (класс tap ставит
+   app.js). Цель касания — сам рисунок. */
+.logo {
+  display: block;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.logo:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+
+.brand-logo {
+  display: block;
+  width: 64px;
+  height: 64px;
+}
+
+/* Логотип сайта плоский: ни тени, ни рамки, ни круга — форма
+   задана самим рисунком. Круглая кнопка только у знака. */
+.znak-btn { border-radius: 50%; }
+
+/* «Вензель» — плашка вровень со знаком вместе с его кольцом:
+   64 + 2 × 2,5. Поле рисунка обрезано по плашке с обводкой (viewBox
+   в разметке), поэтому высота — это высота самой плашки. Сдвиг влево
+   на 2,5 снимает отступ шапки, нужный только кольцу знака: плашка
+   встаёт вровень с левым краем листов, как кольцо — с правым.
+   Скругление кнопки — как у плашки (16 из 90 при 69 точках), чтобы
+   рамка фокуса шла по ней. */
+.venzel { width: 69px; height: 69px; }
+.venzel-btn { margin-left: -2.5px; border-radius: 12px; }
+
+/* Нажатие — фиолетовая диагональ наливается заново снизу вверх, как
+   полоска решённого: фиолетовый на сайтах — цвет продвижения. На время
+   заливки под ней видна бледная дорожка. Уровень — прямоугольник
+   в clipPath, двигается он; в покое он выше диагонали целиком, так что
+   без анимации рисунок полный. 0,9 секунды — между вспышкой знака (0,7)
+   и росчерком 11-1 (1,1). Сдвиг в CSS-пикселях внутри SVG — это
+   единицы рисунка: 50 опускают уровень ниже диагонали.
+   Дорожка видна своей анимацией той же длины, а не классом: по её
+   концу app.js снимает tap — от прямоугольника в clipPath событие
+   может и не дойти, а дорожка гаснет сама в любом случае. */
+.venzel-dorozhka { opacity: 0; }
+.venzel-btn.tap .venzel-dorozhka { animation: dorozhka .9s linear; }
+.venzel-btn.tap .venzel-uroven { animation: zaliv .9s cubic-bezier(.3, .7, .4, 1); }
+
+@keyframes zaliv {
+  0%   { transform: translateY(50px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes dorozhka {
+  0%, 100% { opacity: 1; }
+}
+
+/* Жёлтое кольцо цвета лучей — только у знака и только на сайте,
+   у самого знака его нет: так же, как на «Лучезарности». */
+.znak { border-radius: 50%; box-shadow: 0 0 0 2.5px var(--gold-logo); }
+
+/* Нажатие на знак — та же вспышка, что на «Лучезарности»: лучи разом
+   вытягиваются от центра, толще и светлее, кольцо на миг толще,
+   за 0,7 секунды всё возвращается. Поворота нет: он загнал бы луч
+   на ноги «Л». */
+.znak-rays { transform-origin: 50px 50px; }
+.znak-btn.tap .znak-rays { animation: rays-flash .7s cubic-bezier(.2, .8, .3, 1); }
+.znak-btn.tap .znak { animation: ring-flash .7s cubic-bezier(.2, .8, .3, 1); }
+
+@keyframes rays-flash {
+  0%   { transform: scale(1);   stroke: #FDD17A; stroke-width: 2.6; }
+  30%  { transform: scale(1.2); stroke: #FFF2C6; stroke-width: 3.9; }
+  100% { transform: scale(1);   stroke: #FDD17A; stroke-width: 2.6; }
+}
+
+@keyframes ring-flash {
+  0%   { box-shadow: 0 0 0 2.5px var(--gold-logo); }
+  30%  { box-shadow: 0 0 0 4px var(--gold-logo); }
+  100% { box-shadow: 0 0 0 2.5px var(--gold-logo); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo.tap * { animation: none !important; }
+}
+
+/* ── разделы ───────────────────────────────────────────── */
+
+.block { margin-bottom: 26px; }
+
+/* Заголовок раздела — платиновая плашка: заливка, косой блик, светлое
+   пятно в правом углу, серая тень. Металл не обводится. */
+.block-head {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-sm);
+  background-color: var(--plat-plate);
+  background-image: linear-gradient(142deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0) 46%);
+  box-shadow: 0 2px 6px rgba(40, 46, 60, 0.12), 0 22px 44px -26px rgba(40, 46, 60, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  color: var(--black);
+}
+
+.block-head::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -70%;
+  right: -12%;
+  width: 62%;
+  padding-bottom: 62%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), transparent 68%);
+  pointer-events: none;
+}
+
+.block-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.block-count {
+  margin-left: auto;
+  color: rgba(20, 17, 24, 0.62);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Под плашкой — листы и карточки групп столбиком. Зазор 12, как между
+   обведёнными карточками на «Лучезарности»: при 8 рамки слипались. */
+.stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+
+/* minmax(0, …) — колонка не шире страницы, даже если внутри длинная
+   строка кода: без этого ячейка сетки растягивается по содержимому,
+   и на телефоне вся страница уезжала вбок. Код прокручивается внутри
+   своего блока. */
+
+/* Лист со строками — белый, в толстой чёрной обводке. */
+.panel {
+  display: grid;
+  gap: 1px;
+  padding: 6px;
+  background: var(--surface);
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+/* ── группа: работа и то, что к ней ────────────────────── */
+
+/* Тот же белый лист в обводке, что у строк: в закрытом виде группа —
+   карточка с шевроном. Строки внутри — на этом же листе, отделены
+   от шапки тонкой чертой, а не рамкой. Так же устроены группы
+   на «Лучезарности». */
+.set {
+  background: var(--surface);
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+
+/* Без переноса: на телефоне длинное название переносится внутри себя,
+   а число файлов и шеврон остаются справа на месте. С переносом
+   шеврон съезжал на отдельную строку под названием. */
+.set-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 13px 16px;
+  border-radius: var(--radius);
+  list-style: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Родной треугольник прячем: шеврон справа рисуется сам и поворачивается. */
+.set-head::-webkit-details-marker { display: none; }
+.set-head::marker { content: ""; }
+.set-head:focus-visible { outline: 2px solid var(--black); outline-offset: -2px; }
+
+/* Название группы и под ним, если есть, пометка «исправлено». */
+.set-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* Заголовок группы — 19 жирным, как группы на «Бумаге». */
+.set-title {
+  color: var(--black);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.set-meta {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-size: 14.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Шеврон — уголок из двух рамок. Вниз — закрыто, вверх — открыто:
+   стрелка показывает, куда поедет содержимое. */
+.chev {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin: 0 3px 3px 2px;
+  border-right: 2px solid var(--ink-muted);
+  border-bottom: 2px solid var(--ink-muted);
+  transform: rotate(45deg);
+  transition: transform .16s ease;
+}
+
+.set[open] > .set-head .chev { transform: translateY(3px) rotate(225deg); }
+
+.set-body {
+  display: grid;
+  gap: 1px;
+  margin: 0 6px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+/* Строка в одну строку — в группе или без категории — и дата стоит
+   вровень с подписью, а не прижата к верху, как у строк с категорией
+   под названием. Класс ставит app.js. */
+.row-one .row-aside { align-self: center; margin-top: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chev { transition: none; }
+}
+
+/* ── строка документа ──────────────────────────────────── */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color .14s ease;
+}
+
+.row:hover { background: var(--quiet); }
+.row:focus-visible { outline: 2px solid var(--black); outline-offset: -2px; }
+
+.row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 17.5px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.row-sub {
+  color: var(--ink-muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* Исправление: белая пилюля в чёрной обводке 2 — так на «Бумаге»
+   выглядят все пометки, — рядом серым, что исправлено. Цвета
+   своего нет: строгий набор «Бумаги» тревожного цвета не держит,
+   и пометку выделяет рамка. */
+.row-fix {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin-top: 4px;
+  color: var(--ink-muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.fix-pill {
+  flex: none;
+  padding: 0 8px;
+  border: var(--frame-sm);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--black);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Дата — справа, тихо, цифры одной ширины. */
+.row-aside {
+  flex: none;
+  align-self: flex-start;
+  margin-top: 3px;
+  color: var(--ink-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Миниатюра — иллюстрация с титула в чёрной рамке, квадрат с белым полем
+   внутри, как паспарту: рисунок вписан целиком. У документа без обложки
+   её нет — на её месте пустое место той же ширины с точкой, чтобы
+   названия стояли по одной линии. */
+.thumb, .nothumb {
+  display: block;
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+
+.thumb {
+  padding: 3px;
+  border: var(--frame-sm);
+  border-radius: 9px;
+  background: var(--surface);
+  object-fit: contain;
+}
+
+.nothumb { display: grid; place-items: center; }
+
+/* Значок сайта — на месте миниатюры и той же ширины, чтобы названия
+   стояли по одной линии; сам рисунок 46, как в «Сайтах» на
+   «Лучезарности». Без рамки — у значков своя. */
+.row-logo {
+  display: block;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  padding: 5px;
+  object-fit: contain;
+}
+
+.nothumb::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8A8494;
+}
+
+/* ── инструкция по проверке ────────────────────────────── */
+
+/* README проверки, разобранный из markdown, — в группе «Установка
+   и сдача», под чертой, как строки в группах. Заголовки — 19 жирным,
+   как группы; код — как в заметках «Лучезарности»: тихая подложка без
+   рамки, моноширинным. Длинная строка кода прокручивается внутри
+   блока, страница вбок не едет. */
+.md {
+  margin: 0 6px;
+  padding: 4px 10px 12px;
+  border-top: 1px solid var(--line);
+  font-size: 16.5px;
+  overflow-wrap: anywhere;
+}
+
+.md h2 {
+  margin: 18px 0 6px;
+  color: var(--black);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.md h2:first-child { margin-top: 10px; }
+
+.md p, .md ul, .md ol { margin: 8px 0; }
+.md ul, .md ol { padding-left: 22px; }
+.md li { margin: 4px 0; }
+.md li > p { margin: 4px 0; }
+
+.md a { color: inherit; text-decoration-color: var(--ink-muted); text-underline-offset: 2px; }
+.md a:hover { text-decoration-color: currentColor; }
+
+.md code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  overflow-wrap: normal;
+}
+
+.md pre {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--quiet);
+  overflow-x: auto;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.md pre code { padding: 0; background: none; font-size: inherit; white-space: pre; }
+
+/* Не загрузился разборщик — инструкция простым текстом, тем же блоком. */
+.md-raw { white-space: pre-wrap; font-family: var(--font-mono); font-size: 14.5px; }
+
+/* ── страница задачников ──────────────────────────────────── */
+
+/* Дорога на главную — пилюля под шапкой, логотипы ведь не ссылки:
+   шеврон влево и «Все материалы». Размер — как у «Назад» на
+   «Лучезарности»: ниже пилюль задачников, 36. */
+.pill.back { min-height: 36px; margin: -6px 0 14px; gap: 9px; padding: 0 14px 0 15px; font-size: 16px; }
+
+.back-chev {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateX(1px) rotate(45deg);
+}
+
+/* Пилюли — переключатель задачников и метки, как пилюли оглавления
+   на «Лучезарности»: белые в чёрной обводке 2, выбранная — чёрная
+   с белой надписью. Число — медальоном, см. .pill-count. */
+.trail-switch,
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trail-switch { margin: 0 0 16px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: var(--frame-sm);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--black);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .14s ease, color .14s ease;
+}
+
+.pill:hover { background: var(--soft); }
+.pill:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+
+.pill[aria-current="page"],
+.pill[aria-pressed="true"] { background: var(--black); color: #FFFFFF; }
+
+/* Число — чёрный медальон с золотой цифрой, как на «Лучезарности»: круг
+   на одну цифру, пилюля на две. Золото знака — только на чёрном, это
+   правило «Бумаги» соблюдено. В выбранной, чёрной, пилюле медальон
+   белеет: чёрный на чёрном пропал бы. */
+.pill-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--black);
+  color: var(--gold-logo);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pill[aria-current="page"] .pill-count,
+.pill[aria-pressed="true"] .pill-count { background: #FFFFFF; color: var(--black); }
+
+/* Метки мельче задачников, но цель касания та же — 40. */
+.pill-sm { min-height: 40px; padding: 0 12px 0 14px; font-size: 15px; }
+.pill-sm .pill-count { min-width: 22px; height: 22px; padding: 0 6px; font-size: 12.5px; }
+
+/* Картинка задачника — кружком в начале пилюли, вплотную к её краю, как
+   аватар. В чёрной выбранной пилюле бледный круг картинки светится. */
+.pill-with-img { padding-left: 5px; gap: 9px; }
+
+.pill-img {
+  display: block;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+/* Метки и «Раскрыть все» — одной строкой: метки слева, кнопка у правого
+   края; не хватает места — кнопка уходит под метки, тоже вправо. */
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.tools .chips { flex: 1 1 340px; }
+.toggle { flex: none; margin-left: auto; gap: 9px; }
+.toggle .chev { margin: 0 1px 4px 0; border-color: currentColor; }
+.toggle[aria-expanded="true"] .chev { transform: translateY(3px) rotate(225deg); }
+
+/* Что значит выбранная метка — строкой под ними, на белой подложке:
+   текст прямо на муаре читается хуже. */
+.tag-opis {
+  margin: 0;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-muted);
+  font-size: 15.5px;
+}
+
+.tag-opis strong { color: var(--black); font-weight: 600; }
+
+.tag-opis code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.tag-opis[hidden] { display: none; }
+
+/* Задача — та же карточка, что группа листков: в шапке номер, название
+   и метки, внутри — условие. Номер — серым перед названием, им задача
+   сдаётся. */
+.zad[hidden] { display: none; }
+
+.zad-top {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.zad-id {
+  flex: none;
+  min-width: 2.9em;
+  color: var(--ink-muted);
+  font-size: 15.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.zad-tags { color: var(--ink-muted); font-size: 14.5px; }
+
+.zad-body {
+  margin: 0 6px;
+  padding: 6px 10px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 16.5px;
+}
+
+.zad-body .md { margin: 0; padding: 0; border-top: 0; }
+
+/* Пункты — «а)» отдельной колонкой, текст рядом, в конце — серый код
+   пункта, ровно так, как его набирать в kontest.py. */
+.punkty {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.punkt { display: grid; grid-template-columns: 1.9em minmax(0, 1fr); align-items: baseline; }
+.punkt-bukva { font-weight: 700; }
+.punkt-text > :first-child { margin-top: 0; }
+.punkt-text > :last-child { margin-bottom: 0; }
+
+.md code.sdat {
+  margin-left: 6px;
+  color: var(--ink-muted);
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+
+/* Пример к программе — ввод и вывод рядом, подписи сверху. */
+.primer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.primer-col { min-width: 0; }
+.primer-label { display: block; margin: 0 0 4px 2px; color: var(--ink-muted); font-size: 14px; font-weight: 600; }
+.primer pre { margin: 0; }
+
+/* Таблицы условий — цифры одной ширины, тонкие черты, шапка отчёркнута
+   чёрным. Широкая таблица прокручивается в своей обёртке. */
+.tbl { margin: 10px 0; overflow-x: auto; }
+
+.md table {
+  border-collapse: collapse;
+  font-size: 15.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.md th,
+.md td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.md th { border-bottom: 2px solid var(--black); font-weight: 600; }
+
+/* В инструкции таблицы словесные, а не столбцы чисел: текст в ячейках
+   переносится, иначе на телефоне таблица шире карточки. Код задачи
+   (`ml10`) не рвётся, строка рвётся между кодами. Не уместилась и так —
+   прокрутится в обёртке. */
+.readme th,
+.readme td { white-space: normal; }
+.readme td code { white-space: nowrap; }
+
+@media (max-width: 420px) {
+  .md th, .md td { padding: 4px 6px; }
+}
+
+/* Файлы задачи — пилюли со скачиванием: имя и размер. */
+.zad-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.zad-files-label { margin-right: 2px; color: var(--ink-muted); font-size: 15px; }
+
+.file-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 13px;
+  border: var(--frame-sm);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--black);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.file-pill:hover { background: #F1F0F2; }
+.file-pill:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+.file-size { color: var(--ink-muted); font-size: 13.5px; font-weight: 400; white-space: nowrap; }
+
+/* Формулы. Выключная шире телефона прокручивается сама по себе. */
+.katex { font-size: 1.08em; }
+.katex-display { margin: 10px 0; padding: 2px 0; overflow-x: auto; overflow-y: hidden; }
+
+/* На телефоне выключная формула мельче, чтобы чаще влезала целиком. */
+@media (max-width: 420px) {
+  .katex-display > .katex { font-size: 0.96em; }
+  .zad-body { padding: 6px 6px 14px; }
+}
+
+/* Строки «что скачать» в карточке «Как сдавать» — тот же лист, что
+   на главной. */
+.md .panel { margin: 8px 0 4px; }
+.md .row { text-decoration: none; }
+
+/* ── пустое и каркас ───────────────────────────────────── */
+
+/* Пустой раздел — белая карточка с пунктиром: место есть, содержимого нет. */
+.empty {
+  padding: 18px 16px;
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-muted);
+}
+
+/* Каркас, пока едут данные, — как на «Лучезарности»: по нему слева
+   направо бежит светлая полоса. Пустая страница за то же время читается
+   как зависание, а бегущий каркас — как работа. */
+.skeleton { display: grid; gap: 8px; }
+
+.skel-head, .skel-row {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--quiet);
+  background-image: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.7) 50%, transparent 80%);
+  background-size: 220% 100%;
+  animation: sweep 1.25s linear infinite;
+}
+
+.skel-head { height: 44px; }
+.skel-row { height: 62px; border-radius: var(--radius); }
+
+@keyframes sweep {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+/* ── движение ──────────────────────────────────────────── */
+
+/* То же, что на «Лучезарности». Смена экрана — содержимое уходит и
+   приходит целиком, одним слоем: прозрачность и маленький сдвиг на всём
+   #main. Уход короткий и с разгоном, приход длиннее и с торможением —
+   читается как одно движение вперёд. Направление сдвига задаёт скрипт:
+   к задачнику — снизу, будто шагнули вглубь; обратно на главную —
+   сверху; соседний задачник — нейтрально. Шапка не движется. */
+#main.leaving {
+  opacity: 0;
+  transform: translateY(var(--out-dy, 0));
+  transition: opacity .08s ease-in, transform .08s ease-in;
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(var(--in-dy, 8px)); }
+  to { opacity: 1; transform: none; }
+}
+
+#main.entering { animation: screenIn .26s cubic-bezier(.22, .8, .24, 1) both; }
+
+/* Отклик на касание. Класс ставит скрипт на pointerdown — через :active
+   на телефоне не выходит: браузер придерживает состояние, пока не
+   убедится, что палец не поехал прокручивать. Пилюли сжимаются;
+   строки и шапки групп — во всю ширину, им сжатие было бы рывком,
+   они отзываются подсветкой. */
+@keyframes tap {
+  0% { transform: scale(.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tapRow {
+  0% { background-color: var(--quiet-on); }
+  100% { background-color: transparent; }
+}
+
+.pill.tap, .file-pill.tap { animation: tap .19s cubic-bezier(.2, .8, .3, 1); }
+a.row.tap, .set-head.tap { animation: tapRow .4s ease-out; }
+
+/* Движение выключается системной настройкой — она не про красоту. */
+@media (prefers-reduced-motion: reduce) {
+  #main.leaving { transition: none; }
+  #main.entering { animation: none; }
+  .pill.tap, .file-pill.tap, a.row.tap, .set-head.tap { animation: none; }
+  .skel-head, .skel-row { animation: none; background-image: none; }
+}
+
+@media (max-width: 420px) {
+  .row { gap: 10px; padding: 8px 6px; }
+  .thumb, .nothumb, .row-logo { width: 48px; height: 48px; }
+  .row-logo { padding: 3px; }
+}
+
+/* ── банки задач ─────────────────────────────────────────────
+
+   Шапка — название сайта словами, своего знака пока нет. Источник —
+   платиновая плашка раздела в чёрной обводке: край чёткий и на муаре
+   (без обводки полупрозрачная подложка расплывалась на узоре). Под ней
+   свёрнутый охват и карточки задач: белый лист в чёрной обводке, как
+   группа, но без шеврона — условие видно сразу. Ответ, пара и справка
+   отделены чертой в полтора пункта цвета краёв: волосяная черта
+   прозрачным серым на белом читалась размыто. */
+.site-title {
+  margin: 0;
+  color: var(--black);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.bz-sec { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.bz-sec[hidden] { display: none; }
+.bz-sec + .bz-sec { margin-top: 14px; }
+
+.src-head {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 10px 16px;
+  border: var(--frame);
+  border-radius: var(--radius);
+  background-color: var(--plat-plate);
+  background-image: linear-gradient(142deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0) 46%);
+}
+
+.src-head::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -70%;
+  right: -12%;
+  width: 62%;
+  padding-bottom: 62%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), transparent 68%);
+  pointer-events: none;
+}
+
+.src-head h3 { margin: 0; color: var(--black); font-size: 21px; font-weight: 700; line-height: 1.25; }
+.src-meta {
+  margin-left: auto;
+  color: rgba(20, 17, 24, 0.66);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.bz-grp {
+  margin: 4px 0 0;
+  padding: 8px 16px;
+  border: var(--frame-sm);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--black);
+  font-size: 17.5px;
+  font-weight: 700;
+}
+
+.bz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 14px 18px 16px;
+  background: var(--surface);
+  border: var(--frame);
+  border-radius: var(--radius);
+  scroll-margin-top: 16px;
+}
+
+.bz-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.bz-code { color: var(--black); font-size: 17.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bz-src { color: var(--ink-muted); font-size: 15px; }
+
+.md.bz-text, .md.bz-about {
+  margin: 0;
+  padding: 2px 0;
+  border-top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.md.bz-about { padding: 4px 16px 14px; border-top: 1.5px solid var(--line); margin: 0 4px; }
+.bz-text > :first-child, .bz-about > :first-child { margin-top: 0; }
+.bz-text > :last-child { margin-bottom: 0; }
+
+.bz-part { display: grid; gap: 4px; padding-top: 10px; border-top: 1.5px solid var(--line); }
+.bz-label { color: var(--black); font-size: 15.5px; font-weight: 600; }
+
+.bz-meta {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1.5px solid var(--line);
+  color: #3E3848;
+  font-size: 14.5px;
+}
+.bz-meta > div { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 12px; }
+.bz-meta dt { color: var(--ink-muted); }
+.bz-meta dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.bz-meta code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+@media (max-width: 560px) {
+  .site-title { font-size: 24px; }
+  .bz { padding: 12px 14px 14px; }
+  .bz-meta > div { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* Формула в справке (примечание, источник) тоже не раздвигает страницу. */
+.bz-meta dd { overflow-x: auto; overflow-y: hidden; }
