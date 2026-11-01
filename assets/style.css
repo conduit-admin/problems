@@ -945,8 +945,18 @@ a.row.tap, .set-head.tap { animation: tapRow .4s ease-out; }
   scroll-margin-top: 16px;
 }
 
+/* Отфильтрованная карточка: display: grid выше перебил бы hidden. */
+.bz[hidden] { display: none; }
+
 .bz-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .bz-code { color: var(--black); font-size: 17.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Код задачи — ссылка на неё саму: нажал, и в адресе ссылка, которую
+   можно отправить. В покое — обычный заголовок, подчёркивание только
+   под курсором, чтобы карточки не пестрели ссылками. */
+a.bz-code { text-decoration: none; border-radius: 4px; }
+a.bz-code:hover { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+a.bz-code:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
 .bz-src { color: var(--ink-muted); font-size: 15px; }
 
 .md.bz-text, .md.bz-about {
@@ -981,6 +991,32 @@ a.row.tap, .set-head.tap { animation: tapRow .4s ease-out; }
   background: var(--quiet);
   font-family: var(--font-mono);
   font-size: 0.88em;
+}
+
+/* Метки — свёрнутый лист под пилюлями источников. Выбранная метка видна
+   и в свёрнутом — тихой подписью под заголовком; пилюли внутри —
+   под тонкой чертой, как строки в группе. */
+.set-note { color: var(--ink-muted); font-size: 15px; font-weight: 500; }
+.set-note[hidden] { display: none; }
+.tags-set > .tag-chips {
+  margin: 0 6px;
+  padding: 12px 10px 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* Пилюли источников на телефоне — одной строкой с прокруткой вбок, как
+   оглавление на «Лучезарности»: в четыре строки они съедали экран
+   до первой задачи. Пилюля, уехавшая за край, читается как «дальше ещё». */
+@media (max-width: 640px) {
+  .chips-src {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-right: -16px;
+    padding-right: 16px;
+  }
+  .chips-src::-webkit-scrollbar { display: none; }
+  .chips-src .pill { flex: none; }
 }
 
 @media (max-width: 560px) {
