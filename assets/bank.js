@@ -1,13 +1,18 @@
-/* Банки задач — задачи одной темы из многих источников, банк за раз.
+/* Банки задач — задачи и учебники по темам.
 
-   Сборки нет: страница читает data/banki.json. Его пишет скрипт выкладки
-   в knowledge (.claude/meta/push-banki.py) из файлов банка
-   tutoring/bank/<тема>/, файл на источник; здесь он только показывается.
-   Что показать, задаёт адрес — банк и после косых черт источник или
-   задача:
-     #parametr                банк
-     #parametr/ommo           только один источник
-     #parametr/ФТ-2026-в1-7   весь банк, задача раскрыта, страница у неё
+   Сборки нет: страница читает data/banki.json и конспекты из
+   data/uchebniki/. Их пишет скрипт выкладки в knowledge
+   (.claude/meta/push-banki.py) из папок tutoring/bank/<тема>/; здесь
+   всё только показывается. Устройство — как у сайта курса ВсОШ по ИИ:
+   главная со списком, по строке — своя страница. Что показать, задаёт
+   адрес:
+     (пусто)                          главная: раздел на тему, в нём
+                                      строки «Задачи» и «Учебники»
+     #parametr                        вкладка «Задачи» темы
+     #parametr/ommo                   задачи одного источника
+     #parametr/ФТ-2026-в1-7           задачи, эта раскрыта, страница у неё
+     #parametr/uchebniki              вкладка «Учебники»
+     #parametr/uchebniki/<конспект>   конспект своей страницей
    Ссылка на задачу — её код в раскрытой карточке.
    Формулы — KaTeX, разметка — marked, как на «Лучезарности» и сайте курса:
    формулы вынимаются до разбора markdown, иначе подчёркивания в них marked
@@ -16,7 +21,8 @@
   "use strict";
 
   var DATA = null;
-  var state = { bank: null, src: null, task: null };
+  var BOOKS = "uchebniki";
+  var state = { page: "main", bank: null, src: null, task: null, book: null };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -126,6 +132,8 @@
     return DATA.banki.filter(function (x) { return x.id === id; })[0];
   }
 
+  function booksOf(b) { return b.uchebniki || []; }
+
   function hasCode(b, code) {
     return b.sources.some(function (s) {
       return s.entries.some(function (e) { return e.code === code; });
@@ -134,18 +142,29 @@
 
   /* ── адрес ─────────────────────────────────────────────── */
   function parseHash() {
-    var segs = location.hash.replace(/^#/, "").split("/").map(function (s) {
+    var raw = location.hash.replace(/^#/, "");
+    var segs = raw ? raw.split("/").map(function (s) {
       try { return decodeURIComponent(s); } catch (e) { return s; }
-    });
-    var st = { bank: null, src: null, task: null };
+    }) : [];
+    var st = { page: "main", bank: null, src: null, task: null, book: null };
+    if (!segs.length) return st;
     var b = bankById(segs[0]);
     if (!b) {
       /* голый код, «#ФТ-2026-в1-7»: ищем, в каком он банке */
       b = DATA.banki.filter(function (x) { return hasCode(x, segs[0]); })[0];
-      if (b) st.task = segs[0];
-      else b = DATA.banki[0];
+      if (!b) return st;
+      st.task = segs[0];
     }
     st.bank = b.id;
+    if (segs[1] === BOOKS || !b.sources.length) {
+      var slug = segs[1] === BOOKS ? segs[2] : null;
+      var known = booksOf(b).some(function (u) { return u.slug === slug; });
+      st.page = known ? "book" : "books";
+      st.book = known ? slug : null;
+      st.task = null;
+      return st;
+    }
+    st.page = "tasks";
     var slugs = b.sources.map(function (s) { return s.slug; });
     segs.slice(1).forEach(function (s) {
       if (!s) return;
@@ -158,6 +177,9 @@
   }
 
   function hashOf(st) {
+    if (!st.bank || st.page === "main") return "";
+    if (st.page === "books") return "#" + st.bank + "/" + BOOKS;
+    if (st.page === "book") return "#" + st.bank + "/" + BOOKS + "/" + st.book;
     return "#" + st.bank +
       (st.src ? "/" + st.src : "") +
       (st.task ? "/" + encodeURIComponent(st.task) : "");
@@ -165,7 +187,94 @@
 
   function setHash() {
     var h = hashOf(state);
-    if (location.hash !== h) history.replaceState(null, "", h);
+    if (location.hash === h || (!h && !location.hash)) return;
+    history.replaceState(null, "", h || location.pathname + location.search);
+  }
+
+  /* ── общие куски ───────────────────────────────────────── */
+  function blockHead(title, count) {
+    var head = el("div", "block-head");
+    head.appendChild(el("h2", null, title));
+    if (count != null) head.appendChild(el("span", "block-count", String(count)));
+    return head;
+  }
+
+  /* Строка главной и списка учебников — как на сайте курса: точка
+     на месте миниатюры, название, под ним подпись. Ведёт на страницу
+     сайта, в той же вкладке. */
+  function row(href, title, sub) {
+    var a = el("a", "row");
+    a.href = href;
+    a.appendChild(el("span", "nothumb"));
+    var label = el("span", "row-label");
+    label.appendChild(el("span", "row-title", title));
+    if (sub) label.appendChild(el("span", "row-sub", sub));
+    else a.classList.add("row-one");
+    a.appendChild(label);
+    return a;
+  }
+
+  /* Дорога назад — пилюля с шевроном влево, как «Все материалы»
+     на странице задачников сайта курса: логотипы ведь не ссылки. */
+  function back(href, text) {
+    var a = el("a", "pill pill-sm back");
+    a.href = href;
+    var chev = el("span", "back-chev");
+    chev.setAttribute("aria-hidden", "true");
+    a.appendChild(chev);
+    a.appendChild(el("span", null, text));
+    return a;
+  }
+
+  function tasksSub(b) {
+    var k = b.sources.length;
+    return b.n + " " + plural(b.n, "задача", "задачи", "задач") + " · " +
+      k + " " + plural(k, "источник", "источника", "источников");
+  }
+
+  function booksSub(b) {
+    var k = booksOf(b).length;
+    return k + " " + plural(k, "конспект", "конспекта", "конспектов");
+  }
+
+  /* ── главная ───────────────────────────────────────────── */
+
+  /* Раздел на тему: плашка с её именем (поле razdel README папки,
+     «Параметры»), под ней лист с двумя строками — задачи и учебники.
+     Чего у темы нет, той строки и нет. */
+  function renderMain(main) {
+    document.title = "Банки задач";
+    DATA.banki.forEach(function (b) {
+      var sec = el("section", "block");
+      sec.appendChild(blockHead(b.razdel || b.title));
+      var stack = el("div", "stack");
+      var panel = el("div", "panel");
+      if (b.sources.length) panel.appendChild(row("#" + b.id, "Задачи", tasksSub(b)));
+      if (booksOf(b).length) panel.appendChild(row("#" + b.id + "/" + BOOKS, "Учебники", booksSub(b)));
+      stack.appendChild(panel);
+      sec.appendChild(stack);
+      main.appendChild(sec);
+    });
+  }
+
+  /* Шапка темы: назад на главную и вкладки «Задачи» и «Учебники» —
+     пилюлями, как переключатель задачников на сайте курса. Вкладка
+     одна — переключателя нет. */
+  function themeHead(main, b, tab) {
+    main.appendChild(back("#", "Все темы"));
+    if (!b.sources.length || !booksOf(b).length) return;
+    var nav = el("nav", "trail-switch");
+    nav.setAttribute("aria-label", b.razdel || b.title);
+    [["tasks", "Задачи", b.n, "#" + b.id],
+     ["books", "Учебники", booksOf(b).length, "#" + b.id + "/" + BOOKS]].forEach(function (t) {
+      var a = el("a", "pill");
+      a.href = t[3];
+      a.appendChild(el("span", null, t[1]));
+      a.appendChild(el("span", "pill-count", String(t[2])));
+      if (t[0] === tab) a.setAttribute("aria-current", "page");
+      nav.appendChild(a);
+    });
+    main.appendChild(nav);
   }
 
   /* ── карточка задачи ───────────────────────────────────────
@@ -239,7 +348,7 @@
     var box = el("div", "bz-more");
     var top = el("div", "bz-top");
     var code = el("a", "bz-code", e.code);
-    code.href = hashOf({ bank: b.id, task: e.code });
+    code.href = hashOf({ page: "tasks", bank: b.id, task: e.code });
     code.title = "Ссылка на эту задачу";
     top.appendChild(code);
     top.appendChild(el("span", "bz-src", s.name));
@@ -251,12 +360,12 @@
     if (pole["Решение"]) box.appendChild(solution(pole["Решение"]));
     var info = el("dl", "bz-meta");
     function line(k, fill) {
-      var row = el("div");
-      row.appendChild(el("dt", null, k));
+      var r = el("div");
+      r.appendChild(el("dt", null, k));
       var dd = el("dd");
       fill(dd);
-      row.appendChild(dd);
-      info.appendChild(row);
+      r.appendChild(dd);
+      info.appendChild(r);
     }
     e.pole.forEach(function (p) {
       var k = p[0];
@@ -342,35 +451,15 @@
     return t;
   }
 
-  /* Переключатель банков — только если их больше одного. */
-  function switcher() {
-    var nav = el("nav", "trail-switch");
-    nav.setAttribute("aria-label", "Банки");
-    DATA.banki.forEach(function (b) {
-      var a = el("a", "pill");
-      a.href = "#" + b.id;
-      a.appendChild(el("span", null, b.title));
-      a.appendChild(el("span", "pill-count", String(b.n)));
-      if (b.id === state.bank) a.setAttribute("aria-current", "page");
-      nav.appendChild(a);
-    });
-    return nav;
-  }
+  /* ── вкладка «Задачи» ──────────────────────────────────── */
+  var filter = null;
 
-  var view = null;
-
-  function render() {
-    var b = bankById(state.bank);
-    var main = document.getElementById("main");
-    main.textContent = "";
-    document.title = b.title + " · Банки задач";
-    if (DATA.banki.length > 1) main.appendChild(switcher());
+  function renderTasks(main, b) {
+    document.title = (b.razdel || b.title) + " · Задачи · Банки задач";
+    themeHead(main, b, "tasks");
 
     var sec = el("section", "block");
-    var plate = el("div", "block-head");
-    plate.appendChild(el("h2", null, b.title));
-    plate.appendChild(el("span", "block-count", String(b.n)));
-    sec.appendChild(plate);
+    sec.appendChild(blockHead(b.title, b.n));
     var stack = el("div", "stack");
 
     /* Пилюли источников: один выбран или ни одного, число — задач в нём. */
@@ -397,23 +486,23 @@
     stack.appendChild(chips);
 
     var secs = b.sources.map(function (s) {
-      var part = el("section", "bz-sec");
+      var sp = el("section", "bz-sec");
       var head = el("div", "src-head");
       head.appendChild(el("h3", null, s.name));
       head.appendChild(el("span", "src-meta",
         srcCount(s) + (s.gody && s.gody !== "—" ? " · " + s.gody : "")));
-      part.appendChild(head);
-      if (s.head) part.appendChild(about(b, s));
+      sp.appendChild(head);
+      if (s.head) sp.appendChild(about(b, s));
       var grp = null;
       s.entries.forEach(function (e) {
         if (e.group !== grp) {
           grp = e.group;
-          if (grp) part.appendChild(el("h4", "bz-grp", grp));
+          if (grp) sp.appendChild(el("h4", "bz-grp", grp));
         }
-        part.appendChild(card(b, s, e));
+        sp.appendChild(card(b, s, e));
       });
-      stack.appendChild(part);
-      return { node: part, slug: s.slug };
+      stack.appendChild(sp);
+      return { node: sp, slug: s.slug };
     });
     sec.appendChild(stack);
     main.appendChild(sec);
@@ -422,7 +511,7 @@
       buttons.forEach(function (x) { x.b.setAttribute("aria-pressed", String(state.src === x.value)); });
       secs.forEach(function (p) { p.node.hidden = state.src !== null && p.slug !== state.src; });
     }
-    view = { bank: b.id, apply: apply };
+    filter = apply;
     apply();
   }
 
@@ -440,11 +529,87 @@
     target.scrollIntoView({ block: "start" });
   }
 
+  /* ── вкладка «Учебники» и конспект ─────────────────────── */
+
+  /* Список конспектов: строка — название конспекта, под ним учебник. */
+  function renderBooks(main, b) {
+    document.title = (b.razdel || b.title) + " · Учебники · Банки задач";
+    themeHead(main, b, "books");
+    var books = booksOf(b);
+    var sec = el("section", "block");
+    sec.appendChild(blockHead("Учебники", books.length));
+    var stack = el("div", "stack");
+    if (books.length) {
+      var panel = el("div", "panel");
+      books.forEach(function (u) {
+        panel.appendChild(row("#" + b.id + "/" + BOOKS + "/" + u.slug, u.title, u.istochnik));
+      });
+      stack.appendChild(panel);
+    } else {
+      stack.appendChild(el("div", "empty", "Учебников пока нет."));
+    }
+    sec.appendChild(stack);
+    main.appendChild(sec);
+  }
+
+  /* Конспект — лист, как заметка на «Лучезарности»: название на платиновой
+     плашке во всю ширину листа, под ним учебник тихой строкой, разделы —
+     главами. Markdown показывается как есть; формулы верстаются разом —
+     конспект читают целиком, а не листают. */
+  function renderBook(main, b, slug) {
+    var u = booksOf(b).filter(function (x) { return x.slug === slug; })[0];
+    document.title = u.title + " · Банки задач";
+    main.appendChild(back("#" + b.id + "/" + BOOKS, "Учебники"));
+    var sheet = el("article", "note");
+    var skel = el("div", "skeleton");
+    skel.setAttribute("aria-hidden", "true");
+    ["skel-head", "skel-row", "skel-row"].forEach(function (c) { skel.appendChild(el("span", c)); });
+    sheet.appendChild(skel);
+    main.appendChild(sheet);
+    fetch(u.file, { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+      .then(function (text) {
+        if (state.page !== "book" || state.book !== slug) return;
+        var body = md(text, "note-body");
+        var h1 = body.querySelector("h1");
+        if (!h1) {
+          h1 = el("h1", null, u.title);
+          body.insertBefore(h1, body.firstChild);
+        }
+        if (u.istochnik) h1.parentNode.insertBefore(el("p", "note-src", u.istochnik), h1.nextSibling);
+        sheet.textContent = "";
+        while (body.firstChild) sheet.appendChild(body.firstChild);
+        typeset(sheet);
+      })
+      .catch(function () {
+        sheet.textContent = "";
+        sheet.appendChild(el("h1", null, u.title));
+        sheet.appendChild(el("p", "empty", "Конспект не загрузился. Обновите страницу."));
+      });
+  }
+
+  /* ── маршрут ───────────────────────────────────────────── */
+  var shown = null;
+
   function route() {
+    var prev = shown;
     state = parseHash();
     setHash();
-    if (!view || view.bank !== state.bank || !document.querySelector(".bz-sec")) render();
-    else view.apply();
+    var key = state.page + ":" + state.bank + ":" + (state.book || "");
+    if (state.page === "tasks" && prev === key && filter) {
+      filter();
+    } else {
+      var main = document.getElementById("main");
+      main.textContent = "";
+      filter = null;
+      var b = state.bank ? bankById(state.bank) : null;
+      if (state.page === "main") renderMain(main);
+      else if (state.page === "tasks") renderTasks(main, b);
+      else if (state.page === "books") renderBooks(main, b);
+      else renderBook(main, b, state.book);
+      if (!state.task) window.scrollTo(0, 0);
+    }
+    shown = key;
     if (state.task) jump(state.task);
   }
 
