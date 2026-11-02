@@ -3,6 +3,7 @@
   {
    "id": "parametr",
    "title": "Банк задач с параметром",
+   "razdel": "Параметры",
    "n": 292,
    "sources": [
     {
@@ -6433,6 +6434,20 @@
        "note": ""
       }
      ]
+    }
+   ],
+   "uchebniki": [
+    {
+     "slug": "teoriya-gornshtein",
+     "title": "Параметр: теория по Горнштейну",
+     "istochnik": "Горнштейн, Полонский, Якир. Задачи с параметрами. Киев, 1992",
+     "file": "data/uchebniki/parametr/teoriya-gornshtein.md"
+    },
+    {
+     "slug": "teoriya-pratusevich",
+     "title": "Параметр: теория по Пратусевичу",
+     "istochnik": "Пратусевич, Столбов, Головин. Алгебра и начала математического анализа, 10–11 класс, профильный уровень",
+     "file": "data/uchebniki/parametr/teoriya-pratusevich.md"
     }
    ]
   }
