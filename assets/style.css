@@ -1177,3 +1177,114 @@ a.bz-code:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; 
   .note > h1 { margin: -18px -16px 0; padding: 16px 16px 14px; font-size: 23px; }
   .note p, .note li { font-size: 16.5px; }
 }
+
+/* ── метки: фильтр, реестр, справка ─────────────────────────
+
+   С 08.11.2026. Скрытое скрыто всегда: у карточек, пилюль и листов
+   свой display, и он перебивал бы атрибут hidden. */
+[hidden] { display: none !important; }
+
+/* Строка фильтра: «Метки» с шевроном раскрывает выбор, рядом режим
+   «любая / решающая» — сегментами в одной обводке, выбранный чёрный. */
+.mk-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.mk-open { gap: 8px; }
+.mk-open .chev { margin: 0 1px 4px 0; border-color: currentColor; }
+.mk-open[aria-expanded="true"] .chev { transform: translateY(3px) rotate(225deg); }
+
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  border: var(--frame-sm);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.seg-btn {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--black);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .14s ease, color .14s ease;
+}
+.seg-btn:hover { background: var(--soft); }
+.seg-btn[aria-pressed="true"] { background: var(--black); color: #FFFFFF; }
+.seg-btn:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+
+/* Лист выбора — белый, в обводке, как группы; тип — жирной строкой,
+   книга у методов — тихой, под ними пилюли. Длинная метка переносится
+   внутри пилюли, поэтому у неё скругление, а не полукруг. */
+.mk-sheet {
+  display: grid;
+  gap: 14px;
+  padding: 14px 14px 16px;
+  background: var(--surface);
+  border: var(--frame);
+  border-radius: var(--radius);
+}
+.mk-type { display: grid; gap: 8px; }
+.mk-type + .mk-type { padding-top: 12px; border-top: 1.5px solid var(--line); }
+.mk-type-name { color: var(--black); font-size: 17px; font-weight: 700; }
+.mk-book { margin-top: 2px; color: var(--ink-muted); font-size: 14.5px; font-weight: 600; }
+.mk-chips { gap: 6px; }
+
+.pill.mk-pill, .pill.mk-on {
+  min-height: 36px;
+  padding: 5px 6px 5px 12px;
+  border-radius: 18px;
+  text-align: left;
+  white-space: normal;
+}
+.pill.mk-on { padding-right: 12px; gap: 6px; }
+.mk-ref { margin-left: 6px; color: var(--ink-muted); font-size: 13px; font-weight: 400; white-space: nowrap; }
+.pill[aria-pressed="true"] .mk-ref { color: rgba(255, 255, 255, 0.72); }
+.pill.mk-pill:disabled { opacity: .35; cursor: default; background: var(--surface); }
+.mk-x { font-size: 19px; line-height: 1; }
+.mk-reset { min-height: 36px; }
+
+/* Реестр: пояснение на белой подложке, строки плотнее строк главной,
+   справа медальон с числом задач; книга у методов — тихой строкой
+   над своими метками. */
+.mk-note { margin: 0 0 16px; }
+.mk-grp { padding: 8px 10px 2px; color: var(--ink-muted); font-size: 14.5px; font-weight: 600; }
+.mk-grp:not(:first-child) { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.mk-row { padding: 6px 10px; }
+.mk-row .row-title { font-size: 17px; }
+.mk-row .pill-count { flex: none; }
+
+/* Метки в справке карточки — кнопки видом ссылок: тихая черта снизу,
+   решающая — жирным и чёрным, как в банке. */
+.mk-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.mk-link:hover { text-decoration-color: currentColor; }
+.mk-link.mk-r { color: var(--black); font-weight: 650; }
+.mk-link:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; border-radius: 3px; }
+
+/* Вкладок темы с 08.11.2026 четыре, и на телефоне они вставали в три
+   строки. Там — одной строкой с прокруткой вбок, как пилюли источников. */
+@media (max-width: 640px) {
+  .trail-switch {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-right: -16px;
+    padding-right: 16px;
+  }
+  .trail-switch::-webkit-scrollbar { display: none; }
+  .trail-switch .pill { flex: none; }
+}

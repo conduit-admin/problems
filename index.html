@@ -8,10 +8,11 @@
 <meta name="theme-color" content="#FFFFFF">
 <title>Банки задач</title>
 <!-- Банки задач: задачи и учебники по темам. Главная — раздел на тему
-     («Параметры») со строками «Задачи» и «Учебники»; у темы две вкладки.
-     Задачи — банк из многих источников с фильтром по источнику, карточка
-     в покое — одно условие, остальное по нажатию. Учебники — конспекты,
-     каждый своей страницей. Что показывать, задаёт адрес, см. начало
+     («Параметры») со строками вкладок. Вкладки темы: «Задачи» —
+     олимпиады с фильтром по источнику и по меткам, «Метки» — реестр
+     меток, «Другие источники» — не олимпиады, «Учебники» — конспекты
+     и задачи книг. Карточка в покое — одно условие, остальное
+     по нажатию. Что показывать, задаёт адрес, см. начало
      assets/bank.js. Данные — data/banki.json и data/uchebniki/, их пишет
      скрипт выкладки из папок банка в knowledge. -->
 <!-- Логотип «Фасад» (02.11.2026): фронтон с пустым тимпаном, архитрав,
@@ -30,7 +31,7 @@
 <link rel="preload" href="assets/fonts/golos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <!-- KaTeX — формулы условий, та же версия, что на «Лучезарности». -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<link rel="stylesheet" href="assets/style.css?v=7">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
 <body>
 <div class="wrap">
@@ -91,6 +92,6 @@
      условия покажутся простым текстом с формулами в исходном виде. -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script defer src="assets/bank.js?v=6"></script>
+<script defer src="assets/bank.js?v=7"></script>
 </body>
 </html>
